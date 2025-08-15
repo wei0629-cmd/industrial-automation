@@ -140,4 +140,5 @@ app.set('io', io);
 // 启动服务器
 startServer();
 
-module.exports = { app, server, io };
+// Vercel兼容性导出
+module.exports = app;
