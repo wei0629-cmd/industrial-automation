@@ -15,7 +15,15 @@ class AIService {
     // 技术问答方法
     async answerTechnicalQuestion(question, context = '') {
         try {
-            // 首先尝试使用DeepSeek API
+            // 首先尝试使用OpenAI API
+            if (this.openaiApiKey && this.openaiApiKey !== 'your_openai_api_key_here') {
+                const result = await this.callOpenAI(question, context);
+                if (result.success) {
+                    return result;
+                }
+            }
+
+            // 如果OpenAI失败，尝试使用DeepSeek API
             if (this.deepseekApiKey && this.deepseekApiKey !== 'your_deepseek_api_key_here') {
                 const result = await this.callDeepSeek(question, context);
                 if (result.success) {
@@ -45,6 +53,56 @@ class AIService {
         } catch (error) {
             console.error('AI服务调用失败:', error);
             return this.localRuleEngine(question, context);
+        }
+    }
+
+    // OpenAI API调用
+    async callOpenAI(prompt, systemPrompt = null) {
+        try {
+            if (!this.openaiApiKey || this.openaiApiKey === 'your_openai_api_key_here') {
+                throw new Error('OpenAI API密钥未配置');
+            }
+
+            const messages = [];
+            if (systemPrompt) {
+                messages.push({
+                    role: 'system',
+                    content: systemPrompt
+                });
+            }
+            
+            messages.push({
+                role: 'user',
+                content: prompt
+            });
+
+            const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+                model: 'gpt-3.5-turbo',
+                messages: messages,
+                temperature: 0.7,
+                max_tokens: 1000,
+                stream: false
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${this.openaiApiKey}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            return {
+                success: true,
+                response: response.data.choices[0].message.content,
+                model: 'gpt-3.5-turbo',
+                usage: response.data.usage
+            };
+
+        } catch (error) {
+            console.error('OpenAI API调用失败:', error);
+            return {
+                success: false,
+                error: error.message,
+                fallback: true
+            };
         }
     }
 
