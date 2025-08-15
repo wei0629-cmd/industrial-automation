@@ -1,8 +1,22 @@
-// 工业自动化系统前端JavaScript
+// 工业自动化平台前端JavaScript
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('工业自动化系统已加载');
+    console.log('工业自动化平台已加载');
     
-    // 导航菜单切换
+    // 初始化应用
+    initIndustrialPlatform();
+});
+
+function initIndustrialPlatform() {
+    setupNavigation();
+    setupDeviceMonitoring();
+    setupAIAssistant();
+    setupSearchFunction();
+    setupAuthSystem();
+    updateRealTimeData();
+}
+
+// 导航菜单功能
+function setupNavigation() {
     const navToggle = document.querySelector('.nav-toggle');
     const navMenu = document.querySelector('.nav-menu');
     
@@ -11,7 +25,10 @@ document.addEventListener('DOMContentLoaded', function() {
             navMenu.classList.toggle('active');
         });
     }
-    
+}
+
+// 设备监控功能
+function setupDeviceMonitoring() {
     // 设备卡片点击事件
     const deviceCards = document.querySelectorAll('.device-card');
     deviceCards.forEach(card => {
@@ -23,7 +40,37 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // 搜索功能
+    // 实时数据更新
+    setInterval(updateRealTimeData, 5000);
+}
+
+// 更新实时数据
+function updateRealTimeData() {
+    const statusElements = document.querySelectorAll('.status-indicator');
+    statusElements.forEach(element => {
+        const random = Math.random();
+        if (random > 0.9) {
+            element.className = 'status-indicator offline';
+            element.textContent = '离线';
+        } else {
+            element.className = 'status-indicator online';
+            element.textContent = '在线';
+        }
+    });
+}
+
+// AI助手功能
+function setupAIAssistant() {
+    const aiAssistantBtn = document.querySelector('.ai-assistant-btn');
+    if (aiAssistantBtn) {
+        aiAssistantBtn.addEventListener('click', function() {
+            window.location.href = '/ai-assistant';
+        });
+    }
+}
+
+// 搜索功能
+function setupSearchFunction() {
     const searchInput = document.querySelector('#search-input');
     const searchButton = document.querySelector('#search-button');
     
@@ -34,32 +81,173 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.location.href = `/search?q=${encodeURIComponent(query)}`;
             }
         });
+    }
+}
+
+// 认证系统
+function setupAuthSystem() {
+    const loginBtn = document.getElementById('login-btn');
+    if (loginBtn) {
+        loginBtn.addEventListener('click', showLoginModal);
+    }
+    
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
+    
+    checkAuthStatus();
+}
+
+// 显示登录模态框
+function showLoginModal() {
+    const modal = document.getElementById('login-modal');
+    if (modal) {
+        modal.style.display = 'block';
+    }
+}
+
+// 隐藏模态框
+function hideModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// 处理登录
+async function handleLogin(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const loginData = {
+        username: formData.get('username'),
+        password: formData.get('password')
+    };
+    
+    try {
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(loginData)
+        });
         
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                searchButton.click();
-            }
-        });
+        if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            
+            showMessage('登录成功！');
+            hideModal('login-modal');
+            updateUIAfterLogin();
+        } else {
+            const error = await response.json();
+            showMessage('登录失败：' + error.message, 'error');
+        }
+    } catch (error) {
+        showMessage('登录失败：' + error.message, 'error');
+    }
+}
+
+// 检查认证状态
+function checkAuthStatus() {
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    
+    if (token && user) {
+        try {
+            const userData = JSON.parse(user);
+            updateUIAfterLogin(userData);
+        } catch (error) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+        }
+    }
+}
+
+// 登录后更新UI
+function updateUIAfterLogin(userData) {
+    const loginBtn = document.getElementById('login-btn');
+    if (loginBtn && userData) {
+        loginBtn.textContent = `欢迎，${userData.username}`;
+        loginBtn.onclick = logout;
+    }
+}
+
+// 登出
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    
+    const loginBtn = document.getElementById('login-btn');
+    if (loginBtn) {
+        loginBtn.textContent = '登录';
+        loginBtn.onclick = showLoginModal;
     }
     
-    // 实时数据更新（模拟）
-    function updateRealTimeData() {
-        const statusElements = document.querySelectorAll('.status-indicator');
-        statusElements.forEach(element => {
-            const random = Math.random();
-            if (random > 0.8) {
-                element.className = 'status-indicator offline';
-                element.textContent = '离线';
-            } else {
-                element.className = 'status-indicator online';
-                element.textContent = '在线';
-            }
-        });
+    showMessage('已登出');
+    location.reload();
+}
+
+// 显示消息
+function showMessage(message, type = 'success') {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${type}`;
+    messageDiv.textContent = message;
+    messageDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 5px;
+        color: white;
+        font-weight: bold;
+        z-index: 1000;
+        animation: slideIn 0.3s ease;
+        background: ${type === 'error' ? '#e74c3c' : '#27ae60'};
+    `;
+    
+    document.body.appendChild(messageDiv);
+    
+    setTimeout(() => {
+        if (messageDiv.parentNode) {
+            messageDiv.parentNode.removeChild(messageDiv);
+        }
+    }, 3000);
+}
+
+// 添加动画样式
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
     }
     
-    // 每5秒更新一次状态
-    setInterval(updateRealTimeData, 5000);
+    .status-indicator {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+    }
     
-    // 初始化
-    updateRealTimeData();
-});
+    .status-indicator.online {
+        background-color: #27ae60;
+        color: white;
+    }
+    
+    .status-indicator.offline {
+        background-color: #e74c3c;
+        color: white;
+    }
+`;
+document.head.appendChild(style);
