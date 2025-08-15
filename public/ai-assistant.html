@@ -396,12 +396,101 @@
                 font-size: 2rem;
             }
             
+            .header p {
+                font-size: 1rem;
+            }
+            
             .features-grid {
                 grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .feature-card {
+                padding: 20px;
+            }
+            
+            .feature-card h3 {
+                font-size: 1.1rem;
+            }
+            
+            .main-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .chat-container {
+                order: 1;
+            }
+            
+            .history-sidebar {
+                order: 2;
+                width: 100%;
+                max-height: 300px;
             }
             
             .message-content {
                 max-width: 85%;
+            }
+            
+            .chat-input {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .chat-input input {
+                width: 100%;
+            }
+            
+            .chat-input button {
+                width: 100%;
+            }
+            
+            .quick-actions {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            
+            .quick-action {
+                font-size: 0.9rem;
+                padding: 8px 12px;
+            }
+            
+            .back-btn {
+                top: 10px;
+                left: 10px;
+                padding: 8px 15px;
+                font-size: 12px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .ai-section {
+                padding: 20px;
+            }
+            
+            .feature-card {
+                padding: 15px;
+            }
+            
+            .chat-header h3 {
+                font-size: 1.2rem;
+            }
+            
+            .history-header h3 {
+                font-size: 1.1rem;
+            }
+            
+            .message {
+                padding: 10px;
+            }
+            
+            .message-content {
+                max-width: 90%;
+                font-size: 0.9rem;
             }
         }
     </style>
