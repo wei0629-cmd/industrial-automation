@@ -8,6 +8,34 @@
   ],
   "routes": [
     {
+      "src": "/api/(.*)",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/devices",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/monitoring",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/search",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/ai-assistant",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/admin",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|ico|svg))",
+      "dest": "/public/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/server.js"
     }
