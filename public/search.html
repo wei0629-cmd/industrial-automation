@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能搜索 - 工业自动化平台</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+        }
+        .search-section {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .search-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #3498db;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+        }
+        .search-btn {
+            padding: 15px 30px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .search-btn:hover {
+            background: #2980b9;
+        }
+        .filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .filter-group label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .results-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .result-item {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: box-shadow 0.3s ease;
+        }
+        .result-item:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .result-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .result-meta {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        .result-description {
+            color: #34495e;
+            line-height: 1.6;
+        }
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #2c3e50;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        .ai-suggestions {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        .ai-suggestions h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .suggestion-tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .suggestion-tag {
+            background: #3498db;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .suggestion-tag:hover {
+            background: #2980b9;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-btn">
+        <i class="fas fa-arrow-left"></i> 返回首页
+    </a>
+    
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-search"></i> 智能搜索</h1>
+            <p>基于AI的工业自动化设备智能搜索与推荐系统</p>
+        </div>
+        
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="输入设备型号、品牌、应用场景或技术参数...">
+                <button class="search-btn" onclick="performSearch()">
+                    <i class="fas fa-search"></i> 搜索
+                </button>
+            </div>
+            
+            <div class="filters">
+                <div class="filter-group">
+                    <label>设备分类</label>
+                    <select id="categoryFilter">
+                        <option value="">全部分类</option>
+                        <option value="PLC">PLC</option>
+                        <option value="变频器">变频器</option>
+                        <option value="人机界面">人机界面</option>
+                        <option value="传感器">传感器</option>
+                        <option value="执行器">执行器</option>
+                        <option value="伺服系统">伺服系统</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>品牌</label>
+                    <select id="brandFilter">
+                        <option value="">全部品牌</option>
+                        <option value="西门子">西门子</option>
+                        <option value="施耐德">施耐德</option>
+                        <option value="三菱">三菱</option>
+                        <option value="ABB">ABB</option>
+                        <option value="欧姆龙">欧姆龙</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>价格范围</label>
+                    <select id="priceFilter">
+                        <option value="">全部价格</option>
+                        <option value="low">经济型 (1-5万)</option>
+                        <option value="medium">中端 (5-20万)</option>
+                        <option value="high">高端 (20万+)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="ai-suggestions">
+                <h3><i class="fas fa-robot"></i> AI推荐搜索</h3>
+                <div class="suggestion-tags">
+                    <span class="suggestion-tag" onclick="searchByTag('小型PLC')">小型PLC</span>
+                    <span class="suggestion-tag" onclick="searchByTag('变频器选型')">变频器选型</span>
+                    <span class="suggestion-tag" onclick="searchByTag('温度传感器')">温度传感器</span>
+                    <span class="suggestion-tag" onclick="searchByTag('伺服电机')">伺服电机</span>
+                    <span class="suggestion-tag" onclick="searchByTag('工业以太网')">工业以太网</span>
+                    <span class="suggestion-tag" onclick="searchByTag('安全继电器')">安全继电器</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="results-section">
+            <h2>搜索结果</h2>
+            <div id="searchResults">
+                <div class="loading">
+                    <i class="fas fa-search"></i>
+                    <p>请输入搜索关键词开始搜索...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 搜索功能
+        function performSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            const category = document.getElementById('categoryFilter').value;
+            const brand = document.getElementById('brandFilter').value;
+            const price = document.getElementById('priceFilter').value;
+            
+            if (!query) {
+                alert('请输入搜索关键词');
+                return;
+            }
+            
+            // 显示加载状态
+            showLoading();
+            
+            // 模拟搜索请求
+            setTimeout(() => {
+                searchDevices(query, category, brand, price);
+            }, 1000);
+        }
+        
+        // 显示加载状态
+        function showLoading() {
+            const resultsDiv = document.getElementById('searchResults');
+            resultsDiv.innerHTML = `
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>正在搜索中...</p>
+                </div>
+            `;
+        }
+        
+        // 搜索设备
+        async function searchDevices(query, category, brand, price) {
+            try {
+                const response = await fetch('/api/devices/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        filters: {
+                            category_id: category,
+                            brand_id: brand,
+                            price_range: price
+                        }
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayResults(data.data);
+                } else {
+                    showError('搜索失败: ' + data.message);
+                }
+            } catch (error) {
+                console.error('搜索错误:', error);
+                // 显示模拟结果
+                displayMockResults(query);
+            }
+        }
+        
+        // 显示搜索结果
+        function displayResults(devices) {
+            const resultsDiv = document.getElementById('searchResults');
+            
+            if (devices.length === 0) {
+                resultsDiv.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-search"></i>
+                        <p>没有找到匹配的设备</p>
+                        <p>请尝试其他关键词或调整筛选条件</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            resultsDiv.innerHTML = devices.map(device => `
+                <div class="result-item">
+                    <div class="result-title">${device.name}</div>
+                    <div class="result-meta">
+                        <strong>品牌:</strong> ${device.brand_name} | 
+                        <strong>分类:</strong> ${device.category_name} | 
+                        <strong>状态:</strong> ${device.status || '在产'}
+                    </div>
+                    <div class="result-description">
+                        ${device.features || '暂无描述'}
+                    </div>
+                    <button onclick="viewDeviceDetails(${device.id})" style="background: #3498db; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; margin-top: 10px;">
+                        查看详情
+                    </button>
+                </div>
+            `).join('');
+        }
+        
+        // 显示模拟结果（当API不可用时）
+        function displayMockResults(query) {
+            const mockDevices = [
+                {
+                    id: 1,
+                    name: 'S7-1200 CPU 1214C',
+                    brand_name: '西门子',
+                    category_name: 'PLC',
+                    status: '在产',
+                    features: '紧凑型PLC，适合小型自动化应用，支持PROFINET通信'
+                },
+                {
+                    id: 2,
+                    name: 'ACS510-01-075A-4',
+                    brand_name: 'ABB',
+                    category_name: '变频器',
+                    status: '在产',
+                    features: '通用型变频器，功率范围0.75-110kW，适用于各种工业应用'
+                },
+                {
+                    id: 3,
+                    name: 'Modicon M221',
+                    brand_name: '施耐德',
+                    category_name: 'PLC',
+                    status: '在产',
+                    features: '小型PLC，集成以太网通信，适合简单控制应用'
+                }
+            ];
+            
+            const filteredDevices = mockDevices.filter(device => 
+                device.name.toLowerCase().includes(query.toLowerCase()) ||
+                device.brand_name.toLowerCase().includes(query.toLowerCase()) ||
+                device.category_name.toLowerCase().includes(query.toLowerCase()) ||
+                device.features.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            displayResults(filteredDevices);
+        }
+        
+        // 显示错误信息
+        function showError(message) {
+            const resultsDiv = document.getElementById('searchResults');
+            resultsDiv.innerHTML = `
+                <div class="no-results">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+        
+        // 通过标签搜索
+        function searchByTag(tag) {
+            document.getElementById('searchInput').value = tag;
+            performSearch();
+        }
+        
+        // 查看设备详情
+        function viewDeviceDetails(deviceId) {
+            alert('设备详情功能开发中...\n设备ID: ' + deviceId);
+        }
+        
+        // 回车键搜索
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+        
+        // 页面加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('智能搜索页面加载完成');
+        });
+    </script>
+</body>
+</html>

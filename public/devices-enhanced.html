@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能设备知识库 - 工业自动化平台</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* 智能搜索区域 */
+        .smart-search {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .search-box {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: #667eea;
+        }
+
+        .search-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* 智能筛选器 */
+        .smart-filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.9rem;
+        }
+
+        .filter-group select {
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            background: white;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .filter-group select:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        /* AI推荐区域 */
+        .ai-recommendations {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+        }
+
+        .ai-recommendations h3 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .recommendation-tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .recommendation-tag {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .recommendation-tag:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* 设备展示区域 */
+        .devices-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .device-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .device-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .device-image {
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+
+        .device-info {
+            padding: 20px;
+        }
+
+        .device-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .device-brand {
+            color: #667eea;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .device-category {
+            background: #f8f9fa;
+            color: #6c757d;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .device-specs {
+            margin-bottom: 15px;
+        }
+
+        .spec-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .spec-label {
+            color: #6c757d;
+        }
+
+        .spec-value {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .device-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #6c757d;
+            border: 1px solid #e9ecef;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* 统计面板 */
+        .stats-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            color: white;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* 返回按钮 */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(44, 62, 80, 0.9);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-btn:hover {
+            background: rgba(44, 62, 80, 1);
+            transform: translateY(-2px);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .search-box {
+                flex-direction: column;
+            }
+            
+            .smart-filters {
+                grid-template-columns: 1fr;
+            }
+            
+            .devices-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-btn">
+        <i class="fas fa-arrow-left"></i> 返回首页
+    </a>
+
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-microchip"></i> 智能设备知识库</h1>
+            <p>海量设备信息 · AI智能推荐 · 专业技术支持</p>
+        </div>
+
+        <!-- 统计面板 -->
+        <div class="stats-panel">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalDevices">1,234</div>
+                    <div class="stat-label">设备总数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalBrands">89</div>
+                    <div class="stat-label">品牌数量</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalCategories">12</div>
+                    <div class="stat-label">设备分类</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="activeDevices">1,156</div>
+                    <div class="stat-label">在售设备</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 智能搜索区域 -->
+        <div class="smart-search">
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="搜索设备型号、品牌、应用场景...">
+                <button class="search-btn" onclick="searchDevices()">
+                    <i class="fas fa-search"></i> 智能搜索
+                </button>
+            </div>
+
+            <div class="smart-filters">
+                <div class="filter-group">
+                    <label>设备分类</label>
+                    <select id="categoryFilter">
+                        <option value="">全部分类</option>
+                        <option value="PLC">PLC</option>
+                        <option value="变频器">变频器</option>
+                        <option value="人机界面">人机界面</option>
+                        <option value="传感器">传感器</option>
+                        <option value="执行器">执行器</option>
+                        <option value="伺服系统">伺服系统</option>
+                        <option value="网络设备">网络设备</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>品牌</label>
+                    <select id="brandFilter">
+                        <option value="">全部品牌</option>
+                        <option value="西门子">西门子</option>
+                        <option value="施耐德">施耐德</option>
+                        <option value="三菱">三菱</option>
+                        <option value="欧姆龙">欧姆龙</option>
+                        <option value="罗克韦尔">罗克韦尔</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>价格范围</label>
+                    <select id="priceFilter">
+                        <option value="">全部价格</option>
+                        <option value="0-1000">1000元以下</option>
+                        <option value="1000-5000">1000-5000元</option>
+                        <option value="5000-20000">5000-20000元</option>
+                        <option value="20000+">20000元以上</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>应用场景</label>
+                    <select id="applicationFilter">
+                        <option value="">全部场景</option>
+                        <option value="小型自动化">小型自动化</option>
+                        <option value="大型工业">大型工业</option>
+                        <option value="过程控制">过程控制</option>
+                        <option value="运动控制">运动控制</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- AI推荐区域 -->
+            <div class="ai-recommendations">
+                <h3><i class="fas fa-robot"></i> AI智能推荐</h3>
+                <div class="recommendation-tags">
+                    <div class="recommendation-tag" onclick="searchByTag('PLC选型')">PLC选型</div>
+                    <div class="recommendation-tag" onclick="searchByTag('变频器')">变频器</div>
+                    <div class="recommendation-tag" onclick="searchByTag('传感器')">传感器</div>
+                    <div class="recommendation-tag" onclick="searchByTag('伺服系统')">伺服系统</div>
+                    <div class="recommendation-tag" onclick="searchByTag('通信协议')">通信协议</div>
+                    <div class="recommendation-tag" onclick="searchByTag('故障诊断')">故障诊断</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 设备展示区域 -->
+        <div class="devices-grid" id="devicesGrid">
+            <!-- 设备卡片将通过JavaScript动态生成 -->
+        </div>
+    </div>
+
+    <script>
+        // 模拟设备数据
+        const devices = [
+            {
+                id: 1,
+                name: 'S7-1200 CPU 1214C',
+                brand: '西门子',
+                category: 'PLC',
+                image: 'fas fa-microchip',
+                specs: {
+                    'CPU类型': '1214C',
+                    'I/O点数': '14DI/10DO',
+                    '通信接口': 'PROFINET',
+                    '工作温度': '-20°C ~ +60°C'
+                },
+                price: '¥2,500',
+                status: 'active'
+            },
+            {
+                id: 2,
+                name: 'V20 变频器',
+                brand: '西门子',
+                category: '变频器',
+                image: 'fas fa-cog',
+                specs: {
+                    '功率范围': '0.37-15kW',
+                    '输入电压': '380-480V',
+                    '控制方式': 'V/f控制',
+                    '防护等级': 'IP20'
+                },
+                price: '¥1,800',
+                status: 'active'
+            },
+            {
+                id: 3,
+                name: 'KTP900 Basic',
+                brand: '西门子',
+                category: '人机界面',
+                image: 'fas fa-tv',
+                specs: {
+                    '屏幕尺寸': '9寸',
+                    '分辨率': '800x480',
+                    '触摸方式': '电阻式',
+                    '通信接口': 'PROFINET'
+                },
+                price: '¥3,200',
+                status: 'active'
+            },
+            {
+                id: 4,
+                name: 'FX3U-32MR',
+                brand: '三菱',
+                category: 'PLC',
+                image: 'fas fa-microchip',
+                specs: {
+                    'CPU类型': 'FX3U',
+                    'I/O点数': '32点',
+                    '通信接口': 'RS-485',
+                    '程序容量': '64K步'
+                },
+                price: '¥1,900',
+                status: 'active'
+            },
+            {
+                id: 5,
+                name: 'E3Z-T61',
+                brand: '欧姆龙',
+                category: '传感器',
+                image: 'fas fa-eye',
+                specs: {
+                    '检测距离': '0.1-3m',
+                    '输出方式': 'NPN/PNP',
+                    '响应时间': '1ms',
+                    '防护等级': 'IP67'
+                },
+                price: '¥450',
+                status: 'active'
+            },
+            {
+                id: 6,
+                name: 'MR-JE-20A',
+                brand: '三菱',
+                category: '伺服系统',
+                image: 'fas fa-cogs',
+                specs: {
+                    '额定功率': '200W',
+                    '额定转速': '3000rpm',
+                    '控制方式': '位置控制',
+                    '通信接口': 'RS-422'
+                },
+                price: '¥2,800',
+                status: 'active'
+            }
+        ];
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            displayDevices(devices);
+            updateStats();
+        });
+
+        // 显示设备列表
+        function displayDevices(deviceList) {
+            const grid = document.getElementById('devicesGrid');
+            grid.innerHTML = '';
+
+            deviceList.forEach(device => {
+                const card = createDeviceCard(device);
+                grid.appendChild(card);
+            });
+        }
+
+        // 创建设备卡片
+        function createDeviceCard(device) {
+            const card = document.createElement('div');
+            card.className = 'device-card';
+            
+            card.innerHTML = `
+                <div class="device-image">
+                    <i class="${device.image}"></i>
+                </div>
+                <div class="device-info">
+                    <div class="device-name">${device.name}</div>
+                    <div class="device-brand">${device.brand}</div>
+                    <div class="device-category">${device.category}</div>
+                    <div class="device-specs">
+                        ${Object.entries(device.specs).map(([key, value]) => `
+                            <div class="spec-item">
+                                <span class="spec-label">${key}:</span>
+                                <span class="spec-value">${value}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="device-actions">
+                        <button class="action-btn btn-primary" onclick="viewDevice(${device.id})">
+                            <i class="fas fa-eye"></i> 查看详情
+                        </button>
+                        <button class="action-btn btn-secondary" onclick="compareDevice(${device.id})">
+                            <i class="fas fa-balance-scale"></i> 对比
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // 搜索设备
+        function searchDevices() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+            const brand = document.getElementById('brandFilter').value;
+            const price = document.getElementById('priceFilter').value;
+            const application = document.getElementById('applicationFilter').value;
+
+            const filteredDevices = devices.filter(device => {
+                const matchesSearch = device.name.toLowerCase().includes(searchTerm) ||
+                                    device.brand.toLowerCase().includes(searchTerm) ||
+                                    device.category.toLowerCase().includes(searchTerm);
+                
+                const matchesCategory = !category || device.category === category;
+                const matchesBrand = !brand || device.brand === brand;
+                
+                return matchesSearch && matchesCategory && matchesBrand;
+            });
+
+            displayDevices(filteredDevices);
+        }
+
+        // 按标签搜索
+        function searchByTag(tag) {
+            document.getElementById('searchInput').value = tag;
+            searchDevices();
+        }
+
+        // 查看设备详情
+        function viewDevice(id) {
+            const device = devices.find(d => d.id === id);
+            if (device) {
+                alert(`查看设备详情: ${device.name}\n品牌: ${device.brand}\n分类: ${device.category}\n价格: ${device.price}`);
+                // 这里可以跳转到设备详情页面
+            }
+        }
+
+        // 对比设备
+        function compareDevice(id) {
+            const device = devices.find(d => d.id === id);
+            if (device) {
+                alert(`添加设备到对比: ${device.name}`);
+                // 这里可以实现设备对比功能
+            }
+        }
+
+        // 更新统计数据
+        function updateStats() {
+            document.getElementById('totalDevices').textContent = devices.length;
+            const brands = [...new Set(devices.map(d => d.brand))];
+            document.getElementById('totalBrands').textContent = brands.length;
+            const categories = [...new Set(devices.map(d => d.category))];
+            document.getElementById('totalCategories').textContent = categories.length;
+            const activeDevices = devices.filter(d => d.status === 'active').length;
+            document.getElementById('activeDevices').textContent = activeDevices;
+        }
+
+        // 监听筛选器变化
+        document.getElementById('categoryFilter').addEventListener('change', searchDevices);
+        document.getElementById('brandFilter').addEventListener('change', searchDevices);
+        document.getElementById('priceFilter').addEventListener('change', searchDevices);
+        document.getElementById('applicationFilter').addEventListener('change', searchDevices);
+
+        // 监听搜索框回车
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchDevices();
+            }
+        });
+    </script>
+</body>
+</html>
+
+
