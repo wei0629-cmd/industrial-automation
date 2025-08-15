@@ -140,4 +140,4 @@ app.set('io', io);
 // 启动服务器
 startServer();
 
-module.exports = { app, server, io };
+module.exports = app;
